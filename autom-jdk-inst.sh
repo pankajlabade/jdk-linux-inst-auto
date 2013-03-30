@@ -17,6 +17,7 @@ if [[ $? -eq 0 ]] ; then
 
 else
     echo You are providing a tar.gz file
+    cd $oracle_jdk_loc
     sudo chmod +x $oracle_jdk_installer
     sudo tar xvzf $oracle_jdk_installer   
 fi
