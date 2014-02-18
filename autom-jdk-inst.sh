@@ -8,7 +8,6 @@
 echo JDK installer is present at $oracle_jdk_loc
 
 ext=${oracle_jdk_installer#*.}
-#echo $oracle_jdk_installer | grep "bin"
 if [ $ext = "bin" ] ; then
     echo You are providing a .bin file 
     cd $oracle_jdk_loc
