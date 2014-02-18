@@ -7,30 +7,43 @@
 
 echo JDK installer is present at $oracle_jdk_loc
 
-
-echo $oracle_jdk_installer | grep "bin"
-if [[ $? -eq 0 ]] ; then
+ext=${oracle_jdk_installer#*.}
+#echo $oracle_jdk_installer | grep "bin"
+if [ $ext = "bin" ] ; then
     echo You are providing a .bin file 
     cd $oracle_jdk_loc
+    sudo cp -rvf $oracle_jdk_loc/$oracle_jdk_installer $JAVA_HOME_Parent_Dir
+    cd $JAVA_HOME_Parent_Dir
     sudo chmod +x $oracle_jdk_installer
     sudo ./$oracle_jdk_installer
-
-else
+elif [ $ext = "tar.gz" ] ; then
     echo You are providing a tar.gz file
     cd $oracle_jdk_loc
+    sudo cp -rvf $oracle_jdk_loc/$oracle_jdk_installer $JAVA_HOME_Parent_Dir
+    cd $JAVA_HOME_Parent_Dir
     sudo chmod +x $oracle_jdk_installer
     sudo tar xvzf $oracle_jdk_installer   
+elif [ $ext = "rpm" ] ; then
+    echo You are providing a tar.gz file
+    cd $oracle_jdk_loc
+    sudo cp -rvf $oracle_jdk_loc/$oracle_jdk_installer $JAVA_HOME_Parent_Dir
+    cd $JAVA_HOME_Parent_Dir
+    sudo apt-get install alien dpkg-dev debhelper build-essential
+    #Now convert package from RPM format to Deb format
+    sudo alien $oracle_jdk_installer
+    installer=${oracle_jdk_installer%%.*}.deb
+    sudo chmod +x $installer
+    sudo dpkg -i $installer
 fi
-	
 
-sudo update-alternatives --install "/usr/bin/java" "java" "$oracle_jdk_loc/$oracle_jdk_val/jre/bin/java" 1 
-sudo update-alternatives --install "/usr/bin/javac" "javac" "$oracle_jdk_loc/$oracle_jdk_val/bin/javac" 1 
-sudo update-alternatives --install "/usr/bin/javaws" "javaws" "$oracle_jdk_loc/$oracle_jdk_val/jre/bin/javaws" 1 
+sudo update-alternatives --install "/usr/bin/java" "java" "$JAVA_HOME_Parent_Dir/$oracle_jdk_val/jre/bin/java" 1 
+sudo update-alternatives --install "/usr/bin/javac" "javac" "$JAVA_HOME_Parent_Dir/$oracle_jdk_val/bin/javac" 1 
+sudo update-alternatives --install "/usr/bin/javaws" "javaws" "$JAVA_HOME_Parent_Dir/$oracle_jdk_val/jre/bin/javaws" 1 
     
 # Run below commands to active the oracle JDK I just installed.    
-sudo update-alternatives --set java $oracle_jdk_loc/$oracle_jdk_val/jre/bin/java
-sudo update-alternatives --set javac $oracle_jdk_loc/$oracle_jdk_val/bin/javac
-sudo update-alternatives --set javaws $oracle_jdk_loc/$oracle_jdk_val/jre/bin/javaws
+sudo update-alternatives --set java $JAVA_HOME_Parent_Dir/$oracle_jdk_val/jre/bin/java
+sudo update-alternatives --set javac $JAVA_HOME_Parent_Dir/$oracle_jdk_val/bin/javac
+sudo update-alternatives --set javaws $JAVA_HOME_Parent_Dir/$oracle_jdk_val/jre/bin/javaws
 
 # Finally test the switch has been successful:
 java -version 
@@ -50,8 +63,8 @@ rm ~/.mozilla/plugins/libnpjp2.so
 # (you tell Firefox, where the plugin is located).
 
 if [ "$JDK_32_bit" = "yes" ]; then
-	ln -s $oracle_jdk_loc/$oracle_jdk_val/jre/lib/i386/libnpjp2.so ~/.mozilla/plugins/
+	ln -s $JAVA_HOME_Parent_Dir/$oracle_jdk_val/jre/lib/i386/libnpjp2.so ~/.mozilla/plugins/
 else
-    ln -s $oracle_jdk_loc/$oracle_jdk_val/jre/lib/amd64/libnpjp2.so ~/.mozilla/plugins/
+    ln -s $JAVA_HOME_Parent_Dir/$oracle_jdk_val/jre/lib/amd64/libnpjp2.so ~/.mozilla/plugins/
 fi
 
